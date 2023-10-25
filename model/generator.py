@@ -31,7 +31,7 @@ class Generator_PNCCGAN(torch.nn.Module):
             torch.nn.Tanh()
         )
         
-        self.init_weights()
+        self._init_weights()
     
                         
     def forward(self, z: torch.Tensor, prev_gen_class: list) -> torch.Tensor:
@@ -41,10 +41,20 @@ class Generator_PNCCGAN(torch.nn.Module):
         
             
         
-    def init_weights(self) -> None:
-        for layer in self.modules():
-            if isinstance(layer, torch.nn.Linear):
-                torch.nn.init.kaiming_normal_(layer.weight)
-                layer.weight.data *= 0.1
-                if layer.bias is None:
-                    torch.nn.init.constant_(layer.bias, 0)
+    def _init_weights(self) -> None:
+        for m in self.modules():
+            if isinstance(m, torch.nn.Conv2d):
+                torch.nn.init.kaiming_normal_(m.weight)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+            elif isinstance(m, torch.nn.BatchNorm2d):
+                torch.nn.init.normal_(m.weight, 1.0, 0.02)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+            elif isinstance(m, torch.nn.Linear):
+                torch.nn.init.kaiming_normal_(m.weight)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
