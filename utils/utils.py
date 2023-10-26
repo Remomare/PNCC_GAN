@@ -2,29 +2,9 @@ import sys
 import time
 import random
 import torch
+import logging
 import numpy as np
 
-class Logger(object):
-    def __init__(self, local_rank=0, no_save=False):
-        self.terminal = sys.stdout
-        self.file = None
-        self.local_rank = local_rank
-        self.no_save = no_save
-    def open(self, fp, mode=None):
-        if mode is None: mode = 'w'
-        if self.local_rank and not self.no_save == 0: self.file = open(fp, mode)
-    def write(self, msg, is_terminal=1, is_file=1):
-        if msg[-1] != "\n": msg = msg + "\n"
-        if self.local_rank == 0:
-            if '\r' in msg: is_file = 0
-            if is_terminal == 1:
-                self.terminal.write(msg)
-                self.terminal.flush()
-            if is_file == 1 and not self.no_save:
-                self.file.write(msg)
-                self.file.flush()
-    def flush(self): 
-        pass
 
 class AverageMeter(object):
 
@@ -73,3 +53,14 @@ def set_random_seed(seed: int):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+def get_logger(logger_name: str = None):
+    logger = logging.getLogger(logger_name)
+    logger.propagate = False
+    logger.setLevel(logging.DEBUG)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("[%(asctime)s] %(message)s"))
+        logger.addHandler(handler)
+    
+    return logger

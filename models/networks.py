@@ -1,9 +1,7 @@
 import torch
 import argparse
 
-from models import model_utils
-
-from models import generator, discriminator, classifier
+from models import generator, discriminator, classifier, model_utils
 
 class PNCC_GAN(torch.nn.Module):
     def __init__(self, args: argparse.ArgumentParser) -> None:
