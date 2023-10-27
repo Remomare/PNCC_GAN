@@ -20,12 +20,12 @@ def training_PNCC_GAN(args):
     
     train_loader = dataset_init.get_dataset_loader(args, args.dataset)
     
-    G = generator.Generator_PNCCGAN(z_dim=args.z_dim, image_size=args.image_size, img_channels=args.img_chennels, num_class=args.num_class).to(device)
+    G = generator.Generator_PNCCGAN(z_dim=args.z_dim, image_size=args.image_size, img_channels=args.img_chennels, num_classes=args.num_classes).to(device)
     D = discriminator.Discriminator_PNCCGAN(image_size=args.image_size, channels=args.img_chennels).to(device)
     C = classifier.CNN_Classifier(ing_channels=args.img_channels, num_classes=args.num_classes)
     
     g_loss_fn = torch.nn.BCELoss()
-    d_loss_fn = model_utils.get_losses_fn(args.loss_mode)
+    d_loss_fn = torch.nn.BCELoss()
     c_loss_fn = torch.nn.CrossEntropyLoss()
     
     g_optimizer = torch.optim.Adam(G.parameters(), lr= args.G_learning_rate)
@@ -40,8 +40,8 @@ def training_PNCC_GAN(args):
     model_dir = './output/%s/result.pt' % args.model_name
     classifier_model_dir = './output/%s/classifier.pt' %args.model_name
 
-    if not os.path.exists(args.ckpt_dir):
-        os.mkdir(args.ckpt_dir)
+    if not os.path.exists('./output/%s' % args.model_name):
+        os.mkdir('./output/%s' % args.model_name)
     try:
         ckpt = torch.load(ckpt_dir)
         start_epoch = ckpt['epoch']
@@ -68,10 +68,12 @@ def training_PNCC_GAN(args):
             
             previous_class = torch.FloatTensor(args.c_dim,1).fill(1.0)
 
-            for i,(x, c_dense) in enumerate(train_loader):
+            for i,(x, classes) in enumerate(train_loader):
                 
                 valid = torch.autograd.Variable(torch.FloatTensor(x.size(0), 1).fill_(1.0), requires_grad=False)
                 fake = torch.autograd.Variable(torch.FloatTensor(x.size(0), 1).fill_(0.0), requires_grad=False)
+                class_ground = torch.FloatTensor(classes.size(0), 1).fill_(1.0)
+                
                 step = epoch * len(train_loader) + i + 1
                 
                 d_optimizer.zero_grad()
@@ -79,13 +81,13 @@ def training_PNCC_GAN(args):
 
                 x = x.to(device)
                 z = torch.randn(args.batch_size, args.z_dim).to(device)
-                c_x = torch.tensor(np.eye(args.c_dim)[c_dense.cpu().numpy()], dtype=z.dtype).to(device)
-                classes_distribution = torch.FloatTensor(c_dense.size(0),1).fill_(1 / args.num_classes)
+                c_x = torch.tensor(np.eye(args.c_dim)[classes.cpu().numpy()], dtype=z.dtype).to(device)
+                classes_distribution = torch.FloatTensor(classes.size(0),1).fill_(1 / args.num_classes)
                 c = previous_class
                 
                 gen_x = G(z, c)
                 c_out = C(gen_x)
-                previous_class = torch.nn.Sigmoid(c_out)
+                previous_class = class_ground - torch.nn.Sigmoid(c_out)
 
                 
                 g_loss = g_loss_fn(D(gen_x), x) + c_loss_fn(C(gen_x), classes_distribution)
@@ -131,7 +133,7 @@ def training_PNCC_GAN(args):
             
             previous_class = torch.FloatTensor(args.c_dim,1).fill(1.0)
 
-            for i,(x, c_dense) in enumerate(train_loader):
+            for i,(x, classes) in enumerate(train_loader):
                 
                 valid = torch.autograd.Variable(torch.FloatTensor(x.size(0), 1).fill_(1.0), requires_grad=False)
                 fake = torch.autograd.Variable(torch.FloatTensor(x.size(0), 1).fill_(0.0), requires_grad=False)
@@ -144,7 +146,7 @@ def training_PNCC_GAN(args):
 
                 x = x.to(device)
                 z = torch.randn(args.batch_size, args.z_dim).to(device)
-                c_x = torch.tensor(np.eye(args.c_dim)[c_dense.cpu().numpy()], dtype=z.dtype).to(device)
+                c_x = torch.tensor(np.eye(args.c_dim)[classes.cpu().numpy()], dtype=z.dtype).to(device)
                 c = previous_class
                 
                 gen_x = G(z, c)
@@ -215,7 +217,7 @@ def trainning_CNN_Classifer(args):
     ckpt_dir = './output/%s/checkpoints.pt' % args.model_name
     classifier_model_dir = './output/%s/classifier.pt' %args.model_name
 
-    for epoch in range(0, args.C_trine_epoch):
+    for epoch in range(0, args.C_train_epoch):
         C.train()
         training_total_loss = 0.0
         for i, (img, label) in enumerate(train_loader):

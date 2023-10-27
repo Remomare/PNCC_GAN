@@ -3,17 +3,17 @@ import numpy as np
 
 class Generator_PNCCGAN(torch.nn.Module):
     
-    def __init__(self, z_dim: int, image_size: int , img_channels: int, num_class: int, dim : int = 128) -> None:
+    def __init__(self, z_dim: int, image_size: int , img_channels: int, num_classes: int, dim : int = 128) -> None:
         super(Generator_PNCCGAN, self).__init__()
         self.z_dim = z_dim
         self.imgae_size = image_size
         self.img_channels = img_channels
-        self.num_class = num_class
+        self.num_classes = num_classes
         
-        self.prev_gen_class_embedding = torch.nn.Embedding(num_class, num_class)
+        self.prev_gen_class_embedding = torch.nn.Embedding(num_classes, num_classes)
         
         self.model_ls = torch.nn.Sequential(
-            torch.nn.Linear(z_dim + num_class, dim),
+            torch.nn.Linear(z_dim + num_classes, dim),
             torch.nn.ReLU(),
             
             torch.nn.Linear(dim, dim * 2),
