@@ -1,13 +1,13 @@
 import torch
 
 class CNN_Classifier(torch.nn.Module):
-    def __init__(self, in_channels: int, num_class: int) -> None:
+    def __init__(self, img_channels: int, num_classes: int) -> None:
         super(CNN_Classifier, self).__init__()
         
         self.keep_prob: float = 0.5
         
         self.conv_layer_ls = torch.nn.Sequential(
-            torch.nn.Conv2d(in_channels, 32, kernel_size= 3, stride= 1, padding= 1),
+            torch.nn.Conv2d(img_channels, 32, kernel_size= 3, stride= 1, padding= 1),
             torch.nn.ReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride= 2),
             
@@ -23,7 +23,7 @@ class CNN_Classifier(torch.nn.Module):
             torch.nn.Linear(4 * 4 * 128, 625, bias=True),
             torch.nn.ReLU(),
             torch.nn.Dropout(p = 1 - self.keep_prob),
-            torch.nn.Linear(625, num_class, bias=True)
+            torch.nn.Linear(625, num_classes, bias=True)
         )
         
         self._init_weights()
