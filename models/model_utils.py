@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 def get_losses_fn(mode: str):
     if mode == 'gan':

@@ -3,10 +3,10 @@ import numpy as np
 
 class Generator_PNCCGAN(torch.nn.Module):
     
-    def __init__(self, z_dim: int, image_size: int , img_channels: int, num_classes: int, dim : int = 128) -> None:
+    def __init__(self, z_dim: int, img_size: int , img_channels: int, num_classes: int, dim : int = 128) -> None:
         super(Generator_PNCCGAN, self).__init__()
         self.z_dim = z_dim
-        self.imgae_size = image_size
+        self.img_size = img_size
         self.img_channels = img_channels
         self.num_classes = num_classes
         
@@ -28,7 +28,7 @@ class Generator_PNCCGAN(torch.nn.Module):
             torch.nn.BatchNorm1d(dim * 8),
             torch.nn.ReLU(),
             
-            torch.nn.Linear(dim * 8, img_channels * image_size * image_size),
+            torch.nn.Linear(dim * 8, img_channels * img_size * img_size),
             torch.nn.Tanh()
         )
         
@@ -36,8 +36,9 @@ class Generator_PNCCGAN(torch.nn.Module):
     
                         
     def forward(self, z: torch.Tensor, prev_gen_class: list) -> torch.Tensor:
-        input = torch.cat([z, self.prev_gen_class_embedding(prev_gen_class)], dim=1)
-        x = self.model_ls(input.view(input.size(0), input.size(1), 1, 1))
+        input = torch.cat((prev_gen_class, z), dim=-1)
+        x = self.model_ls(input)
+        x = x.view(x.size(0), self.img_channels, self.img_size, self.img_size)
         return x
         
             

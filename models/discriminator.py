@@ -2,11 +2,11 @@ import torch
 import numpy as np
 
 class Discriminator_PNCCGAN(torch.nn.Module):
-    def __init__(self, imgae_size: int, channels: int, dim: int = 128) -> None:
+    def __init__(self, img_size: int, channels: int, dim: int = 128) -> None:
         super(Discriminator_PNCCGAN, self).__init__()
                 
         self.model_ls = torch.nn.Sequential(
-            torch.nn.Linear(channels * imgae_size * imgae_size, dim, dim * 4),
+            torch.nn.Linear(channels * img_size * img_size, dim * 4),
             torch.nn.LeakyReLU(0.2),
             
             torch.nn.Linear(dim * 4, dim * 2),
@@ -22,6 +22,7 @@ class Discriminator_PNCCGAN(torch.nn.Module):
         self._init_weights()
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.view(x.size(0), -1)
         logit = self.model_ls(x)
         return logit
     
