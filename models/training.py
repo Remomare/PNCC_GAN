@@ -27,7 +27,7 @@ def training_PNCC_GAN(args):
     
     g_loss_fn = torch.nn.BCELoss()
     d_loss_fn = torch.nn.BCELoss()
-    c_loss_fn = torch.nn.MSELoss()
+    c_loss_fn = torch.nn.CrossEntropyLoss()
     
     g_optimizer = torch.optim.Adam(G.parameters(), lr= args.G_learning_rate)
     d_optimizer = torch.optim.Adam(D.parameters(), lr= args.D_learning_rate)
@@ -41,6 +41,7 @@ def training_PNCC_GAN(args):
     classifier_model_dir =  args.classifier_model_dir +'/classifier.pt'
     model_dir = args.model_dir + 'result.pt'
 
+    """
     try:
         ckpt = torch.load(ckpt_dir)
         start_epoch = ckpt['epoch']
@@ -53,7 +54,9 @@ def training_PNCC_GAN(args):
     except:
         print(' [*] No checkpoint!')
         start_epoch = 0
-        
+    """
+    start_epoch = 0
+    
     z_sample = torch.randn(args.num_classes * 10, args.z_dim).to(device)
     c_sample = torch.tensor(np.concatenate([np.eye(args.num_classes)] * 10), dtype=z_sample.dtype).to(device)
 
@@ -90,9 +93,9 @@ def training_PNCC_GAN(args):
                 previous_class = gen_class.detach()
                 
                 g_loss = g_loss_fn(D(gen_x), valid) 
-                c_loss = c_loss_fn(gen_class, classes_distribution)
+                c_loss = c_loss_fn(gen_class, c_x) + c_loss_fn(C(x.detach()), classes_distribution) 
                 
-                g_total_loss = g_loss + c_loss
+                g_total_loss = g_loss + c_loss /2
                 
                 g_total_loss.backward()
 
@@ -112,11 +115,10 @@ def training_PNCC_GAN(args):
                     writer.add_scalar('D/d_loss', d_loss.data.cpu().numpy(), global_step=step)
                     writer.add_scalar('G/g_loss', g_loss.data.cpu().numpy(), global_step=step)
                 
-                print("Epoch: (%5d) step: (%5d/%5d)" %(epoch, i+1, len(train_loader)))
+                print("Epoch: (%5d) step: (%5d/%5d) g_loss: (%.5f) c_loss: (%.5f) d_loss: (%.5f)" %(epoch, i+1, len(train_loader), g_loss, c_loss, d_loss))
 
-                if i % 2000 == 1999:
-                    torchvision.utils.save_image(gen_x.data[:25], "images/%d.png" % i, nrow=5, normalize=True)
-                    exit()
+                if (epoch * len(train_loader) + i) % 100 == 99:
+                    torchvision.utils.save_image(gen_x.data[:25], "images/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)
                 
             g_scheduler.step()
             d_scheduler.step()
@@ -244,7 +246,7 @@ def trainning_CNN_Classifer(args):
             C_optimizer.step()
 
             training_total_loss += C_loss.item()
-            if i % 2000 == 1999:    # print every 2000 mini-batches
+            if i % 200 == 199:    # print every 2000 mini-batches
                 print(f'[{epoch + 1}, {i + 1:5d}] loss: {training_total_loss / 2000:.3f}')
                 training_total_loss = 0.0
                 
