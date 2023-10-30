@@ -33,9 +33,9 @@ def training_PNCC_GAN(args):
     d_optimizer = torch.optim.Adam(D.parameters(), lr= args.D_learning_rate)
     c_optimizer = torch.optim.Adam(C.parameters(), lr= args.C_learning_rate)
     
-    g_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= g_optimizer,lr_lambda= lambda epoch: 0.65 ** epoch )
-    d_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= d_optimizer,lr_lambda= lambda epoch: 0.65 ** epoch )
-    c_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= c_optimizer,lr_lambda= lambda epoch: 0.65 ** epoch )
+    g_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= g_optimizer,lr_lambda= lambda epoch: 0.95 ** epoch )
+    d_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= d_optimizer,lr_lambda= lambda epoch: 0.95 ** epoch )
+    c_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= c_optimizer,lr_lambda= lambda epoch: 0.95 ** epoch )
     
     ckpt_dir = args.ckpt_dir + '/checkpoint.pt'
     classifier_model_dir =  args.classifier_model_dir +'/classifier.pt'
@@ -68,7 +68,7 @@ def training_PNCC_GAN(args):
 
                 x = torch.autograd.Variable(x.type(torch.Tensor)).to(device)
                 z = torch.autograd.Variable(torch.randn(args.batch_size, args.z_dim)).float().to(device)
-                c_x = torch.tensor(np.eye(args.num_classes)[classes.cpu().numpy()], dtype=z.dtype).to(device)
+                c_x = torch.autograd.Variable(classes.type(torch.LongTensor)).to(device)
                 classes_distribution = torch.autograd.Variable(torch.FloatTensor(args.batch_size, args.num_classes).fill_(1 / args.num_classes)).to(device)
                 c = previous_class
                 
@@ -79,7 +79,7 @@ def training_PNCC_GAN(args):
                 previous_class = gen_class.detach()
                 
                 g_loss = g_loss_fn(D(gen_x), valid) 
-                c_loss = c_loss_fn(gen_class,  classes_distribution) + c_loss_fn(torch.nn.functional.sigmoid(C(x.detach())), c_x) 
+                c_loss = c_loss_fn(gen_class,  classes_distribution) + c_loss_fn(gen_class, c_x) 
                 
                 g_total_loss = g_loss + c_loss /2
                 
@@ -398,7 +398,6 @@ def trainning_CNN_Classifer(args):
 
     for epoch in range(0, args.C_train_epoch):
         C.train()
-        training_total_loss = 0.0
         for i, (img, label) in enumerate(train_loader):
             step = epoch * len(train_loader) + i + 1
 
@@ -412,10 +411,8 @@ def trainning_CNN_Classifer(args):
             C_loss.backward()
             C_optimizer.step()
 
-            training_total_loss += C_loss.item()
             if i % 200 == 199:    # print every 2000 mini-batches
-                print(f'[{epoch + 1}, {i + 1:5d}] loss: {training_total_loss / 2000:.3f}')
-                training_total_loss = 0.0
+                print(f'[{epoch + 1}, {i + 1:5d}] loss: {C_loss:.6f}')
                 
         C_scheduler.step()
         

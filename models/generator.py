@@ -14,19 +14,19 @@ class Generator_PNCCGAN(torch.nn.Module):
         
         self.model_ls = torch.nn.Sequential(
             torch.nn.Linear(z_dim + num_classes, dim),
-            torch.nn.ReLU(),
+            torch.nn.LeakyReLU(0.2),
             
             torch.nn.Linear(dim, dim * 2),
             torch.nn.BatchNorm1d(dim * 2),
-            torch.nn.ReLU(),
+            torch.nn.LeakyReLU(0.2),
             
             torch.nn.Linear(dim * 2, dim * 4),
             torch.nn.BatchNorm1d(dim * 4),
-            torch.nn.ReLU(),
+            torch.nn.LeakyReLU(0.2),
             
             torch.nn.Linear(dim * 4, dim * 8),
             torch.nn.BatchNorm1d(dim * 8),
-            torch.nn.ReLU(),
+            torch.nn.LeakyReLU(0.2),
             
             torch.nn.Linear(dim * 8, img_channels * img_size * img_size),
             torch.nn.Tanh()
