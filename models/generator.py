@@ -61,6 +61,64 @@ class Generator_PNCCGAN(torch.nn.Module):
                 if m.bias is not None:
                     torch.nn.init.constant_(m.bias, 0)
 
+class Generator_PNCCGAN_no_classembed(torch.nn.Module):
+    
+    def __init__(self, z_dim: int, img_size: int , img_channels: int, num_classes: int, dim : int = 128) -> None:
+        super(Generator_PNCCGAN_no_classembed, self).__init__()
+        self.z_dim = z_dim
+        self.img_size = img_size
+        self.img_channels = img_channels
+        self.num_classes = num_classes
+                
+        self.model_ls = torch.nn.Sequential(
+            torch.nn.Linear(z_dim, dim),
+            torch.nn.ReLU(),
+            
+            torch.nn.Linear(dim, dim * 2),
+            torch.nn.BatchNorm1d(dim * 2),
+            torch.nn.ReLU(),
+            
+            torch.nn.Linear(dim * 2, dim * 4),
+            torch.nn.BatchNorm1d(dim * 4),
+            torch.nn.ReLU(),
+            
+            torch.nn.Linear(dim * 4, dim * 8),
+            torch.nn.BatchNorm1d(dim * 8),
+            torch.nn.ReLU(),
+            
+            torch.nn.Linear(dim * 8, img_channels * img_size * img_size),
+            torch.nn.Tanh()
+        )
+        
+        self._init_weights()
+    
+                        
+    def forward(self, z: torch.Tensor, prev_gen_class: list) -> torch.Tensor:
+        x = self.model_ls(z)
+        x = x.view(x.size(0), self.img_channels, self.img_size, self.img_size)
+        return x
+        
+            
+        
+    def _init_weights(self) -> None:
+        for m in self.modules():
+            if isinstance(m, torch.nn.Conv2d):
+                torch.nn.init.kaiming_normal_(m.weight)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+            elif isinstance(m, torch.nn.BatchNorm2d):
+                torch.nn.init.normal_(m.weight, 1.0, 0.02)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+            elif isinstance(m, torch.nn.Linear):
+                torch.nn.init.kaiming_normal_(m.weight)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+
+
 class Generator_GAN(torch.nn.Module):
     def __init__(self, z_dim, img_channels, img_size):
         super(Generator_GAN, self).__init__()

@@ -10,7 +10,7 @@ def main(args):
     if args.classifier_training:
         training.trainning_CNN_Classifer(args)
     
-    training.training_PNCC_GAN(args)
+    training.training_PNCC_GAN_no_class(args)
     
     
     
@@ -24,7 +24,7 @@ if __name__ == "__main__":
                         type=str)
     parser.add_argument('--num_workers', default= 4,
                         type= int)
-    parser.add_argument('--target_epoch', default= 100,
+    parser.add_argument('--target_epoch', default= 300,
                         type=int)
     parser.add_argument('--C_train_epoch', default= 10,
                         type=int)
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument('--z_dim', default= 100, 
                         type= int)
     
-    parser.add_argument('--classifier_training', default= True,
+    parser.add_argument('--classifier_training', default= False,
                         type= bool)
     parser.add_argument('--classifier_trained', default= True,
                         type= bool)
