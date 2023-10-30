@@ -138,7 +138,7 @@ class Generator_GAN(torch.nn.Module):
             *block(128, 256),
             *block(256, 512),
             *block(512, 1024),
-            torch.nn.Linear(1024, int(np.prod(self.img_channels, self.img_size, self.img_size))),
+            torch.nn.Linear(1024, int(self.img_channels * self.img_size * self.img_size)),
             torch.nn.Tanh()
         )
 

@@ -53,7 +53,7 @@ class Discriminator_GAN(torch.nn.Module):
         self.img_size = img_size
                 
         self.model = torch.nn.Sequential(
-            torch.nn.Linear(int(np.prod(self.img_channels, self.img_size, self.img_size)), 512),
+            torch.nn.Linear(int(self.img_channels * self.img_size * self.img_size), 512),
             torch.nn.LeakyReLU(0.2, inplace=True),
             torch.nn.Linear(512, 256),
             torch.nn.LeakyReLU(0.2, inplace=True),

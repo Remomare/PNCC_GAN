@@ -41,20 +41,6 @@ def training_PNCC_GAN(args):
     classifier_model_dir =  args.classifier_model_dir +'/classifier.pt'
     model_dir = args.model_dir + 'result.pt'
 
-    """
-    try:
-        ckpt = torch.load(ckpt_dir)
-        start_epoch = ckpt['epoch']
-        D.load_state_dict(ckpt['D'])
-        G.load_state_dict(ckpt['G'])
-        C.load_state_dict(ckpt['C'])
-        d_optimizer.load_state_dict(ckpt['d_optimizer'])
-        g_optimizer.load_state_dict(ckpt['g_optimizer'])
-        c_optimizer.load_state_dict(ckpt['c_optimizer'])
-    except:
-        print(' [*] No checkpoint!')
-        start_epoch = 0
-    """
     start_epoch = 0
     
     z_sample = torch.randn(args.num_classes * 10, args.z_dim).to(device)
@@ -193,14 +179,6 @@ def training_PNCC_GAN(args):
             d_scheduler.step()
             c_scheduler.step()
 
-            torch.save({
-                'epoch': epoch + 1,
-                'D': D.state_dict(),
-                'G': G.state_dict(),
-                'D_opt': d_optimizer.state_dict(),
-                'G_opt': g_optimizer.state_dict(),
-                }, ckpt_dir)
-            
         torch.save({
             'D': D.state_dict(),
             'G': G.state_dict(),
@@ -240,20 +218,6 @@ def training_PNCC_GAN_no_class(args):
     classifier_model_dir =  args.classifier_model_dir +'/classifier.pt'
     model_dir = args.model_dir + 'result.pt'
 
-    """
-    try:
-        ckpt = torch.load(ckpt_dir)
-        start_epoch = ckpt['epoch']
-        D.load_state_dict(ckpt['D'])
-        G.load_state_dict(ckpt['G'])
-        C.load_state_dict(ckpt['C'])
-        d_optimizer.load_state_dict(ckpt['d_optimizer'])
-        g_optimizer.load_state_dict(ckpt['g_optimizer'])
-        c_optimizer.load_state_dict(ckpt['c_optimizer'])
-    except:
-        print(' [*] No checkpoint!')
-        start_epoch = 0
-    """
     start_epoch = 0
     
     z_sample = torch.randn(args.num_classes * 10, args.z_dim).to(device)
@@ -281,7 +245,7 @@ def training_PNCC_GAN_no_class(args):
 
                 x = torch.autograd.Variable(x.type(torch.Tensor)).to(device)
                 z = torch.autograd.Variable(torch.randn(args.batch_size, args.z_dim)).float().to(device)
-                c_x = torch.tensor(np.eye(args.num_classes)[classes.cpu().numpy()], dtype=z.dtype).to(device)
+                c_x = torch.autograd.Variable(classes.type(torch.LongTensor))
                 classes_distribution = torch.autograd.Variable(torch.FloatTensor(args.batch_size, args.num_classes).fill_(1 / args.num_classes)).to(device)
                 c = previous_class
                 
@@ -289,10 +253,11 @@ def training_PNCC_GAN_no_class(args):
                 c_out = C(gen_x)
                 
                 gen_class = torch.nn.functional.sigmoid(c_out)
+                original_class  = torch.nn.functional.sigmoid(C(x.detach()))
                 previous_class = gen_class.detach()
                 
                 g_loss = g_loss_fn(D(gen_x), valid) 
-                c_loss = c_loss_fn(gen_class,  classes_distribution) + c_loss_fn(torch.nn.functional.sigmoid(C(x.detach())), c_x) 
+                c_loss = c_loss_fn(gen_class,  classes_distribution) + c_loss_fn(original_class, c_x) 
                 
                 g_total_loss = g_loss + c_loss /2
                 
@@ -455,3 +420,69 @@ def trainning_CNN_Classifer(args):
         C_scheduler.step()
         
     torch.save(C, classifier_model_dir)
+    
+def trainning_vanilla_gan(args):
+    logger = utils.get_logger("Vanilla GAN Training")
+    if args.use_tensorboard_logging:
+        writer = SummaryWriter(f"runs/{args.model_name}_logs")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    train_loader = dataset_init.get_dataset_loader(args, args.dataset)
+
+    G = generator.Generator_GAN(args.z_dim, args.img_channels, args.img_size).to(device)
+    D = discriminator.Discriminator_GAN(args.img_channels, args.img_size).to(device)
+
+    adversarial_loss = torch.nn.BCELoss()
+
+    optimizer_G = torch.optim.Adam(G.parameters(), lr= args.C_learning_rate)
+    optimizer_D = torch.optim.Adam(D.parameters(), lr= args.D_learning_rate)
+
+    scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer = optimizer_G, lr_lambda=lambda epoch: 0.95 ** epoch)
+    scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer = optimizer_D, lr_lambda=lambda epoch: 0.95 ** epoch)
+
+    ckpt_dir = args.ckpt_dir + '/checkpoint.pt'
+
+    for epoch in range(0, args.target_epoch):
+        G.train()
+        D.train()
+        
+        for i, (img, label) in enumerate(train_loader):
+            step = epoch * len(train_loader) + i + 1
+            
+            valid = torch.autograd.Variable(torch.FloatTensor(img.size(0), 1).fill_(1.0), requires_grad=False).to(device)
+            fake = torch.autograd.Variable(torch.FloatTensor(img.size(0), 1).fill_(0.0), requires_grad=False).to(device)
+            
+            real_img = torch.autograd.Variable(img.type(torch.FloatTensor)).to(device)
+            
+            optimizer_G.zero_grad()
+
+            z = torch.autograd.Variable(torch.FloatTensor(np.random.normal(0,1,(img.shape[0], args.z_dim)))).to(device)
+            
+            gen_img = G(z)
+            
+            g_loss = adversarial_loss(D(gen_img), valid)
+            
+            g_loss.backward()
+            optimizer_G.step()
+            
+            optimizer_D.zero_grad()
+            
+            real_loss = adversarial_loss(D(real_img), valid)
+            fake_loss = adversarial_loss(D(gen_img.detach()), fake)
+            
+            d_loss = (real_loss + fake_loss) / 2
+            
+            d_loss.backward()
+            optimizer_D.step()
+
+            if i % 200 == 199:    # print every 2000 mini-batches
+                print(f'[{epoch + 1}, {step + 1:6d}] g_loss: {g_loss:.5f} d_loss: {d_loss:.5f}')
+            
+            if step % 1500 == 0:
+                torchvision.utils.save_image(gen_img.data[:25], "images/vanillaGAN/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)
+                
+        scheduler_G.step()
+        scheduler_D.step()
+
+
+    

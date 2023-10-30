@@ -6,12 +6,14 @@ from models import training
 
 def main(args):
     
+    if args.model_name == "PNCC_GAN":
+        if args.classifier_training:
+            training.trainning_CNN_Classifer(args)
+        
+        training.training_PNCC_GAN(args)
     
-    if args.classifier_training:
-        training.trainning_CNN_Classifer(args)
-    
-    training.training_PNCC_GAN_no_class(args)
-    
+    if args.model_name == 'GAN':
+        training.trainning_vanilla_gan(args)
     
     
 
