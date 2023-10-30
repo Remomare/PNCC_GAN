@@ -1,0 +1,59 @@
+absl-py @ file:///home/conda/feedstock_root/build_artifacts/absl-py_1695154477682/work
+aiohttp @ file:///D:/bld/aiohttp_1649013336361/work
+aiosignal @ file:///home/conda/feedstock_root/build_artifacts/aiosignal_1667935791922/work
+async-timeout @ file:///C:/b/abs_43ozhz2a8g/croots/recipe/async-timeout_1664876362767/work
+attrs @ file:///home/conda/feedstock_root/build_artifacts/attrs_1683424013410/work
+blinker @ file:///home/conda/feedstock_root/build_artifacts/blinker_1696764509355/work
+Brotli @ file:///C:/Windows/Temp/abs_63l7912z0e/croots/recipe/brotli-split_1659616056886/work
+cachetools @ file:///home/conda/feedstock_root/build_artifacts/cachetools_1698197297464/work
+certifi==2023.7.22
+cffi @ file:///C:/b/abs_49n3v2hyhr/croot/cffi_1670423218144/work
+charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
+click @ file:///D:/bld/click_1692312014553/work
+colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1666700638685/work
+cryptography @ file:///C:/b/abs_f4do8t8jfs/croot/cryptography_1694444424531/work
+filelock @ file:///C:/b/abs_c7yrhs9uz2/croot/filelock_1672387617533/work
+frozenlist @ file:///C:/b/abs_2bb5uzghsi/croot/frozenlist_1670004511812/work
+google-auth @ file:///home/conda/feedstock_root/build_artifacts/google-auth_1696932781355/work
+google-auth-oauthlib @ file:///home/conda/feedstock_root/build_artifacts/google-auth-oauthlib_1694470453154/work
+grpcio @ file:///C:/b/abs_35nay_1l8s/croot/grpc-suite_1685746862992/work
+idna @ file:///C:/b/abs_bdhbebrioa/croot/idna_1666125572046/work
+importlib-metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1688754491823/work
+Jinja2 @ file:///C:/b/abs_7cdis66kl9/croot/jinja2_1666908141852/work
+Markdown @ file:///home/conda/feedstock_root/build_artifacts/markdown_1696627721496/work
+MarkupSafe @ file:///C:/ci/markupsafe_1654489871526/work
+mkl-fft @ file:///C:/b/abs_19i1y8ykas/croot/mkl_fft_1695058226480/work
+mkl-random @ file:///C:/b/abs_edwkj1_o69/croot/mkl_random_1695059866750/work
+mkl-service==2.4.0
+mpmath @ file:///C:/b/abs_7833jrbiox/croot/mpmath_1690848321154/work
+multidict @ file:///C:/b/abs_6cx_8w3cv2/croot/multidict_1665674238352/work
+networkx @ file:///C:/b/abs_e6gi1go5op/croot/networkx_1690562046966/work
+numpy @ file:///C:/Users/dev-admin/mkl/numpy_and_numpy_base_1682982345978/work
+oauthlib @ file:///home/conda/feedstock_root/build_artifacts/oauthlib_1666056362788/work
+packaging==23.2
+Pillow @ file:///C:/b/abs_20ztcm8lgk/croot/pillow_1696580089746/work
+protobuf @ file:///D:/bld/protobuf_1681050097049/work/python
+pyasn1 @ file:///home/conda/feedstock_root/build_artifacts/pyasn1_1694615621498/work
+pyasn1-modules @ file:///home/conda/feedstock_root/build_artifacts/pyasn1-modules_1695107857548/work
+pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
+PyJWT @ file:///home/conda/feedstock_root/build_artifacts/pyjwt_1689721553971/work
+pyOpenSSL @ file:///C:/b/abs_08f38zyck4/croot/pyopenssl_1690225407403/work
+PySocks @ file:///C:/ci/pysocks_1605287845585/work
+pyu2f @ file:///home/conda/feedstock_root/build_artifacts/pyu2f_1604248910016/work
+PyYAML @ file:///C:/b/abs_782o3mbw7z/croot/pyyaml_1698096085010/work
+requests @ file:///C:/b/abs_316c2inijk/croot/requests_1690400295842/work
+requests-oauthlib @ file:///home/conda/feedstock_root/build_artifacts/requests-oauthlib_1643557462909/work
+rsa @ file:///home/conda/feedstock_root/build_artifacts/rsa_1658328885051/work
+six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
+sympy @ file:///C:/b/abs_95fbf1z7n6/croot/sympy_1668202411612/work
+tensorboard @ file:///home/conda/feedstock_root/build_artifacts/tensorboard_1697763101605/work/tensorboard-2.15.0-py3-none-any.whl#sha256=c05b4d02a3a9fd4bd6c25265087d52b49b790a871ddf98f4fb32fe97cbbc7ad0
+tensorboard-data-server @ file:///D:/bld/tensorboard-data-server_1695425486162/work/tensorboard_data_server-0.7.0-py3-none-any.whl#sha256=8e45a4ade0c0978a5447bf1fa4c7d163a59557ada3ea378225c2a9660c6be2d0
+torch==2.1.0
+torchaudio==2.1.0
+torchvision==0.16.0
+typing_extensions @ file:///C:/b/abs_213vg2cd1l/croot/typing_extensions_1690297804941/work
+urllib3 @ file:///C:/b/abs_9cmlsrm3ys/croot/urllib3_1698257595508/work
+Werkzeug @ file:///home/conda/feedstock_root/build_artifacts/werkzeug_1698235201373/work
+win-inet-pton @ file:///C:/ci/win_inet_pton_1605306167264/work
+yarl @ file:///D:/bld/yarl_1648966672752/work
+zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1695255097490/work
