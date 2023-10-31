@@ -68,14 +68,14 @@ def training_PNCC_GAN(args):
 
                 x = torch.autograd.Variable(x.type(torch.Tensor)).to(device)
                 z = torch.autograd.Variable(torch.randn(args.batch_size, args.z_dim)).float().to(device)
-                c_x = torch.autograd.Variable(classes.type(torch.LongTensor), requires_grad=False).to(device)
+                c_x = torch.autograd.Variable(classes.type(torch.LongTensor)).to(device)
                 classes_distribution = torch.autograd.Variable(torch.FloatTensor(args.batch_size, args.num_classes).fill_(1 / args.num_classes), requires_grad=False).to(device)
                 c = previous_class.detach()
                 
                 gen_x = G(z, c)
                 c_out = C(gen_x)
                 
-                gen_class = torch.nn.functional.sigmoid(c_out)
+                gen_class = torch.nn.functional.softmax(c_out)
                 previous_class = gen_class/(i+1) + c * i / (i + 1)
                 
                 g_loss = g_loss_fn(D(gen_x), valid) 
