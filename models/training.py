@@ -75,11 +75,13 @@ def training_PNCC_GAN(args):
                 gen_x = G(z, c)
                 c_out = C(gen_x)
                 
-                gen_class = torch.nn.functional.softmax(c_out)
+                gen_class = torch.nn.functional.sigmoid(c_out)
+                class_dist_prob = torch.nn.functional.sigmoid(classes_distribution)
                 previous_class = gen_class/(i+1) + c * i / (i + 1)
                 
                 g_loss = g_loss_fn(D(gen_x), valid) 
-                c_loss = c_loss_fn(previous_class,  classes_distribution) + c_loss_fn(gen_class, c_x)                
+                c_loss = c_loss_fn(previous_class,  class_dist_prob)
+
                 g_total_loss = g_loss + c_loss
                 
                 g_total_loss.backward()
