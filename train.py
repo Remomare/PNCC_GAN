@@ -28,7 +28,7 @@ if __name__ == "__main__":
                         type= int)
     parser.add_argument('--target_epoch', default= 150,
                         type=int)
-    parser.add_argument('--C_train_epoch', default= 100,
+    parser.add_argument('--C_train_epoch', default= 10,
                         type=int)
     parser.add_argument('--batch_size', default= 32,
                         type=int)
