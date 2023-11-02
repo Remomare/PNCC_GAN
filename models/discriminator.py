@@ -45,6 +45,53 @@ class Discriminator_PNCCGAN(torch.nn.Module):
                 if m.bias is not None:
                     torch.nn.init.constant_(m.bias, 0)
 
+class Discriminator_PNCC_CGAN(torch.nn.Module):
+    def __init__(self, num_classes, img_channels, img_size):
+        super(Discriminator_CGAN, self).__init__()
+        self.num_classes = num_classes
+        self.img_channels = img_channels
+        self.img_size = img_size
+        
+        
+        self.label_embedding = torch.nn.Embedding(self.num_classes, self.num_classes)
+
+        self.model = torch.nn.Sequential(
+            torch.nn.Linear(self.num_classes + int(np.prod(self.img_channels, self.img_size, self.img_size)), 512),
+            torch.nn.LeakyReLU(0.2, inplace=True),
+            torch.nn.Linear(512, 512),
+            torch.nn.Dropout(0.4),
+            torch.nn.LeakyReLU(0.2, inplace=True),
+            torch.nn.Linear(512, 512),
+            torch.nn.Dropout(0.4),
+            torch.nn.LeakyReLU(0.2, inplace=True),
+            torch.nn.Linear(512, 1),
+        )
+        self._init_weights()
+
+    def forward(self, img, labels):
+        # Concatenate label embedding and image to produce input
+        d_in = torch.cat((img.view(img.size(0), -1), self.label_embedding(labels)), -1)
+        validity = self.model(d_in)
+        return validity
+
+    def _init_weights(self) -> None:
+        for m in self.modules():
+            if isinstance(m, torch.nn.Conv2d):
+                torch.nn.init.kaiming_normal_(m.weight)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+            elif isinstance(m, torch.nn.BatchNorm2d):
+                torch.nn.init.normal_(m.weight, 1.0, 0.02)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+            elif isinstance(m, torch.nn.Linear):
+                torch.nn.init.kaiming_normal_(m.weight)
+                m.weight.data *= 0.1
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+
 
 class Discriminator_GAN(torch.nn.Module):
     def __init__(self, img_channels, img_size):

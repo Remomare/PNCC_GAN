@@ -22,7 +22,7 @@ def training_PNCC_GAN(args):
     train_loader = dataset_init.get_dataset_loader(args, args.dataset)
     
     G = generator.Generator_PNCCGAN(z_dim=args.z_dim, img_size=args.img_size, img_channels=args.img_channels, num_classes=args.num_classes).to(device)
-    D = discriminator.Discriminator_PNCCGAN(img_size=args.img_size, channels=args.img_channels).to(device)
+    D = discriminator.Discriminator_PNCC_CGAN(num_classes= args.num_classes, img_size=args.img_size, img_channels=args.img_channels).to(device)
     C = classifier.CNN_Classifier(img_channels=args.img_channels, num_classes=args.num_classes).to(device)
     
     g_loss_fn = torch.nn.BCELoss()
@@ -79,7 +79,7 @@ def training_PNCC_GAN(args):
                 class_dist_prob = torch.nn.functional.sigmoid(classes_distribution)
                 previous_class = gen_class/(i+1) + c * i / (i + 1)
                 
-                g_loss = g_loss_fn(D(gen_x), valid) 
+                g_loss = g_loss_fn(D(gen_x, gen_class), valid) 
                 c_loss = c_loss_fn(previous_class,  class_dist_prob)
 
                 g_total_loss = g_loss + c_loss
@@ -91,8 +91,8 @@ def training_PNCC_GAN(args):
 
                 d_optimizer.zero_grad()
                 
-                r_loss = d_loss_fn(D(x),valid)
-                f_loss = d_loss_fn(D(gen_x.detach()), fake)
+                r_loss = d_loss_fn(D(x, c_x),valid)
+                f_loss = d_loss_fn(D(gen_x.detach(), gen_class), fake)
                 d_loss = (r_loss + f_loss) / 2
                 
                 d_loss.backward()
