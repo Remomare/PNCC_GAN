@@ -58,7 +58,7 @@ def training_PNCC_GAN(args):
             
         for epoch in range(start_epoch, args.target_epoch):
 
-            print(f" ephch {epoch + 1} prev_class: {previous_class[0]}" )
+            print(f" ephch {epoch} prev_class: {previous_class[0]}" )
 
             for i,(x, classes) in enumerate(train_loader):
                 
@@ -88,7 +88,7 @@ def training_PNCC_GAN(args):
 
                 g_total_loss = g_loss + c_loss
                 
-                g_total_loss.backward(retain_graph=True)
+                g_total_loss.backward()
 
                 g_optimizer.step()
 
@@ -110,18 +110,18 @@ def training_PNCC_GAN(args):
 
                 
                 if (epoch * len(train_loader) + i) % 1500 == 1499:
-                    torchvision.utils.save_image(gen_x.data[:25], "images/21/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)                
+                    torchvision.utils.save_image(gen_x.data[:25], "images/22/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)                
                 
             g_scheduler.step()
             d_scheduler.step()
 
-            torch.save({
+            """torch.save({
                 'epoch': epoch + 1,
                 'D': D.state_dict(),
                 'G': G.state_dict(),
                 'D_opt': d_optimizer.state_dict(),
                 'G_opt': g_optimizer.state_dict(),
-                }, ckpt_dir)
+                }, ckpt_dir)"""
         torch.save({
             'D': D.state_dict(),
             'G': G.state_dict(),
