@@ -47,15 +47,18 @@ def training_PNCC_GAN(args):
     z_sample = torch.randn(args.num_classes * 10, args.z_dim).to(device)
     c_sample = torch.tensor(np.concatenate([np.eye(args.num_classes)] * 10), dtype=z_sample.dtype).to(device)
 
+    previous_class = torch.FloatTensor(args.batch_size, args.num_classes).fill_(0.0).to(device)
+
     if args.classifier_trained:
         C = torch.load(classifier_model_dir)
-
-        for epoch in range(start_epoch, args.target_epoch):
-            D.train()
-            G.train()
-            C.eval()
+        
+        D.train()
+        G.train()
+        C.eval()
             
-            previous_class = torch.FloatTensor(args.batch_size, args.num_classes).fill_(0.0).to(device)
+        for epoch in range(start_epoch, args.target_epoch):
+
+            print(f" ephch {epoch + 1} prev_class: {previous_class[0]}" )
 
             for i,(x, classes) in enumerate(train_loader):
                 
@@ -103,10 +106,11 @@ def training_PNCC_GAN(args):
                     writer.add_scalar('D/d_loss', d_loss.data.cpu().numpy(), global_step=step)
                     writer.add_scalar('G/g_loss', g_loss.data.cpu().numpy(), global_step=step)
                 
-                print("Epoch: (%5d) step: (%5d/%5d) g_loss: (%.5f) c_loss: (%.5f) d_loss: (%.5f)" %(epoch, i+1, len(train_loader), g_loss, c_loss, d_loss))
+                print("Epoch: (%5d) step: (%5d/%5d) g_loss: (%.5f) c_loss: (%.5f) d_loss: (%.5f) " %(epoch, i+1, len(train_loader), g_loss, c_loss, d_loss))
 
+                
                 if (epoch * len(train_loader) + i) % 1500 == 1499:
-                    torchvision.utils.save_image(gen_x.data[:25], "images/19/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)
+                    torchvision.utils.save_image(gen_x.data[:25], "images/21/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)                
                 
             g_scheduler.step()
             d_scheduler.step()

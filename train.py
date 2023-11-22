@@ -26,7 +26,7 @@ if __name__ == "__main__":
                         type=str)
     parser.add_argument('--num_workers', default= 4,
                         type= int)
-    parser.add_argument('--target_epoch', default= 250,
+    parser.add_argument('--target_epoch', default= 500,
                         type=int)
     parser.add_argument('--C_train_epoch', default= 15,
                         type=int)
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('--z_dim', default= 100, 
                         type= int)
     
-    parser.add_argument('--classifier_training', default= True,
+    parser.add_argument('--classifier_training', default= False,
                         type= bool)
     parser.add_argument('--classifier_trained', default= True,
                         type= bool)
