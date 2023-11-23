@@ -22,7 +22,7 @@ def training_PNCC_GAN(args):
     train_loader = dataset_init.get_dataset_loader(args, args.dataset)
     embedding = torch.nn.Embedding(args.num_classes, args.num_classes).to(device)
     
-    G = generator.Generator_GAN(z_dim=args.z_dim, img_channels=args.img_channels, img_size=args.img_size).to(device)
+    G = generator.Generator_PNCCGAN(z_dim=args.z_dim, img_size=args.img_size,  img_channels=args.img_channels, num_classes=args.num_classes).to(device)
     D = discriminator.Discriminator_PNCCGAN(channels=args.img_channels, img_size=args.img_size).to(device)
     C = classifier.CNN_Classifier(img_channels=args.img_channels, num_classes=args.num_classes).to(device)
     
@@ -76,7 +76,7 @@ def training_PNCC_GAN(args):
                 classes_distribution = torch.autograd.Variable(torch.FloatTensor(args.batch_size, args.num_classes).fill_(1 / args.num_classes), requires_grad=False).to(device)
                 prev_class = previous_class.detach()
                 
-                gen_x = G(z)
+                gen_x = G(z, prev_class)
                 c_out = C(gen_x)
                 
                 gen_class = torch.nn.functional.sigmoid(c_out)
@@ -110,7 +110,7 @@ def training_PNCC_GAN(args):
 
                 
                 if (epoch * len(train_loader) + i) % 1500 == 1499:
-                    torchvision.utils.save_image(gen_x.data[:25], "images/22/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)                
+                    torchvision.utils.save_image(gen_x.data[:25], "images/24/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)                
                 
             g_scheduler.step()
             d_scheduler.step()
