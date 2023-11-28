@@ -30,13 +30,13 @@ def training_PNCC_GAN(args):
     d_loss_fn = torch.nn.BCELoss()
     c_loss_fn = torch.nn.CrossEntropyLoss()
     
-    g_optimizer = torch.optim.Adam(G.parameters(), lr= args.G_learning_rate)
-    d_optimizer = torch.optim.Adam(D.parameters(), lr= args.D_learning_rate)
+    g_optimizer = torch.optim.Adam(G.parameters(), lr= args.G_learning_rate, betas=(0.5, 0.999))
+    d_optimizer = torch.optim.Adam(D.parameters(), lr= args.D_learning_rate, betas=(0.5, 0.999))
     c_optimizer = torch.optim.Adam(C.parameters(), lr= args.C_learning_rate)
     
-    g_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= g_optimizer,lr_lambda= lambda epoch: 0.95 ** epoch )
-    d_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= d_optimizer,lr_lambda= lambda epoch: 0.95 ** epoch )
-    c_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= c_optimizer,lr_lambda= lambda epoch: 0.95 ** epoch )
+    g_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= g_optimizer,lr_lambda= lambda epoch: 0.99 ** epoch )
+    d_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= d_optimizer,lr_lambda= lambda epoch: 0.99 ** epoch )
+    c_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer= c_optimizer,lr_lambda= lambda epoch: 0.99 ** epoch )
     
     ckpt_dir = args.ckpt_dir + '/checkpoint.pt'
     classifier_model_dir =  args.classifier_model_dir +'/classifier.pt'
@@ -109,11 +109,16 @@ def training_PNCC_GAN(args):
                 print("Epoch: (%5d) step: (%5d/%5d) g_loss: (%.5f) c_loss: (%.5f) d_loss: (%.5f) " %(epoch, i+1, len(train_loader), g_loss, c_loss, d_loss))
 
                 
-                if (epoch * len(train_loader) + i) % 1500 == 1499:
-                    torchvision.utils.save_image(gen_x.data[:25], "images/24/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)                
+                if (epoch * len(train_loader) + i) % 400 == 0:
+                    torchvision.utils.save_image(gen_x.data[:25], "images/26/%d.png" % (epoch * len(train_loader) + i), nrow=5, normalize=True)
+                if epoch == 699:
+                    for n in range(len(train_loader)):
+                        torchvision.utils.save_image(gen_x.data[i], "images/26/sample/%d.png" % ( i * args.batch_size + n), nrow = 1, padding = 0, normalize=True)
+
+                                    
                 
-            g_scheduler.step()
-            d_scheduler.step()
+            #g_scheduler.step()
+            #d_scheduler.step()
 
             """torch.save({
                 'epoch': epoch + 1,
@@ -481,7 +486,7 @@ def trainning_vanilla_gan(args):
             if i % 200 == 199:    # print every 2000 mini-batches
                 print(f'[{epoch + 1}, {step + 1:6d}] g_loss: {g_loss:.5f} d_loss: {d_loss:.5f}')
             
-            if step % 1500 == 0:
+            if step % 400 == 0:
                 torchvision.utils.save_image(gen_img.data[:25], "images/vanillaGAN/%d.png" % (epoch * len(train_loader) + i + 1), nrow=5, normalize=True)
                 
         scheduler_G.step()

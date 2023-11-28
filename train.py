@@ -32,9 +32,9 @@ if __name__ == "__main__":
                         type=int)
     parser.add_argument('--batch_size', default= 64,
                         type=int)
-    parser.add_argument('--G_learning_rate', default= 0.0001,
+    parser.add_argument('--G_learning_rate', default= 0.0002,
                         type=float)
-    parser.add_argument('--D_learning_rate', default= 0.0001,
+    parser.add_argument('--D_learning_rate', default= 0.0002,
                         type=float)
     parser.add_argument('--C_learning_rate', default= 0.001,
                         type=float)
